@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MYIC Age–Depth Profile</title>
+
+  <style>
+    :root {
+      --ice-blue: #e8f4fb;
+      --deep-blue: #16577e;
+      --accent: #2b8ac4;
+      --text: #22303a;
+      --warning: #a15c00;
+      --error: #b3261e;
+      --border: #c9dde9;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--text);
+      background: linear-gradient(160deg, #f4fbff 0%, var(--ice-blue) 100%);
+    }
+
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #ffffff;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 12px 30px rgba(22, 87, 126, 0.12);
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.5rem;
+      color: var(--deep-blue);
+    }
+
+    .subtitle {
+      margin: 0 0 24px;
+      font-size: 0.95rem;
+      color: #5b6b76;
+    }
+
+    .intro {
+      margin-bottom: 18px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #5b6b76;
+    }
+
+    .range {
+      margin: -8px 0 18px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: var(--deep-blue);
+      background: var(--ice-blue);
+      border-radius: 8px;
+    }
+
+    .intro,
+    .intro-after-range {
+      margin: 0 0 16px;
+      font-size: 0.95rem;
+      line-height: 1.5;
+      color: #5b6b76;
+    }
+
+.range {
+  margin: 8px 0 0;
+  padding: 10px 14px;
+  font-size: 0.9rem;
+  color: var(--deep-blue);
+  background: var(--ice-blue);
+  border-radius: 8px;
+}
+
+    #myic-form {
+      display: grid;
+      gap: 16px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--deep-blue);
+    }
+
+    select,
+    input {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fbfdff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    select:focus,
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(43, 138, 196, 0.18);
+    }
+
+    button {
+      padding: 12px 16px;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #ffffff;
+      background: var(--deep-blue);
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+
+    button:hover {
+      background: var(--accent);
+    }
+
+    button:active {
+      transform: translateY(1px);
+    }
+
+    #output {
+      margin-top: 24px;
+    }
+
+    #output h2 {
+      margin: 0 0 12px;
+      font-size: 1.15rem;
+      color: var(--deep-blue);
+    }
+
+    #output ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    #output li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 14px;
+      background: var(--ice-blue);
+      border-radius: 8px;
+      font-size: 0.98rem;
+    }
+
+    #output strong {
+      text-transform: capitalize;
+      color: var(--deep-blue);
+    }
+
+    .warning {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warning);
+      background: #fff7e8;
+      color: var(--warning);
+      border-radius: 6px;
+      white-space: pre-line;
+    }
+
+    .bedrock,
+    .stagnant {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border-left: 4px solid var(--warning);
+      background: #fff7e8;
+      color: var(--warning);
+      border-radius: 6px;
+    }
+
+    .error {
+      margin: 16px 0 0;
+      padding: 12px 14px;
+      border-left: 4px solid var(--error);
+      background: #fdecea;
+      color: var(--error);
+      border-radius: 6px;
+    }
+
+    .credit {
+      margin-top: 24px;
+      font-size: 0.8rem;
+      color: #6b7a85;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 20px;
+      }
+
+      #output li {
+        flex-direction: column;
+        gap: 2px;
+      }
+    }
+
+    #parameter,
+    #value {
+      width: 100%;
+      max-width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const parameterSelect = document.getElementById("parameter");
+    const rangeBox = document.getElementById("range-text");
+
+    const ranges = {
+      depth: "Range 0 m < depth < 3064 m",
+      age: "Range -51 yr < age BP < 4400000 yrs",
+      resolution: "Range 0 yrs/m < resolution < 30000 yrs/m"
+    };
+
+    function updateRange() {
+      rangeBox.textContent = ranges[parameterSelect.value];
+    }
+
+    parameterSelect.addEventListener("change", updateRange);
+    updateRange();
+  });
+</script>
+<body>
+  <main class="card">
+  <h1>Million Year Ice Core</h1>
+  <p class="subtitle">Version 2, updated 23 Mar 2026</p>
+
+  <div class="intro">
+    <p>
+      Calculate depth, age, or resolution from the MYIC age–depth profile.
+    </p>
+  </div>
+
+  <form id="myic-form">
+    <div>
+      <label for="parameter">Choose parameter</label>
+      <select id="parameter">
+        <option value="depth">Depth</option>
+        <option value="age">Age</option>
+        <option value="resolution">Resolution</option>
+      </select>
+    </div>
+
+    <div>
+      <p class="range" id="range-text"></p>
+    </div>
+
+    <div>
+      <label for="value">Choose value</label>
+      <input id="value" type="number" step="any" required>
+    </div>
+
+    <button type="submit">Calculate</button>
+  </form>
+
+  <div id="output"></div>
+
+  <p class="credit">
+    Brought to you by Ailsa Chung,<br>
+    <a href="mailto:ailsa.chung@unibe.ch">ailsa.chung@unibe.ch</a>
+  </p>
+  </main>
+
+  <script src="myic_a_version2.js"></script>
+</body>
+</html>
